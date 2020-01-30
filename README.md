@@ -152,7 +152,7 @@ class World extends \OvhCli\Command
       if ($a) {
         print "This is action A\n";
       } elseif($b) {
-        print "This is action A\n";
+        print "This is action B\n";
       } else {
         print "No action specified. Use --help!\n";
       }
@@ -196,5 +196,5 @@ No action specified. Use --help!
 $ ./ovh-cli hello:world -a
 This is action A
 $ ./ovh-cli hello:world -b
-This is action A
+This is action B
 ```
