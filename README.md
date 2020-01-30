@@ -45,6 +45,14 @@ $ cd php-ovh-cli
 $ composer update
 ```
 
+If you prefer to have a standalone executable, then create a PHAR package:
+```
+$ ./create-phar.php
+```
+
+This will package the script among with all its dependencies and install it in `$HOME/bin/ovh-cli`,
+if executed as regular user, otherwise in `/usr/local/bin/ovh-cli` if executed as root.
+
 ## Configuration
 To interact with OVH API you must already have an account at OVH.
 The script will take care of requesting an API token for you.
