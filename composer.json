@@ -1,0 +1,13 @@
+{
+    "require": {
+        "ovh/ovh": "^2.0",
+        "rlanvin/php-ip": "^2.0",
+        "ulrichsg/getopt-php": "^3.2",
+        "phpfastcache/phpfastcache": "^7.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "OvhCli\\": "src/"
+        }
+    }
+}
