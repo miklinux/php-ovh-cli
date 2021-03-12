@@ -21,6 +21,7 @@ A simple [OVH API](https://api.ovh.com/console/) client for managing OVH infrast
 - Access KVM console (requires Java-WS)
 - Perform IPMI reset
 - Request hardware reboot
+- Manage renewal
 
 **vRack**
 - List associated servers
@@ -30,6 +31,14 @@ A simple [OVH API](https://api.ovh.com/console/) client for managing OVH infrast
 - Reverse DNS management
 - Automatically resolve reverse hostname to OVH `nsXXX` hostname
 
+**Tickets**
+- Reply to tickets
+- Close tickets
+
+**IPs**
+- List failover IPs
+- Resolve from service name to reverse
+- Resolve from reverse to service name
 
 ## Requirements
 
