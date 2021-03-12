@@ -398,14 +398,19 @@ class Ovh {
   }
 
   public function getIpBlockIps($block) {
+    $block = urlencode($block);
     return $this->get("/ip/${block}/reverse");
   }
 
   public function getIpReverse($block, $ip) {
+    $ip = urlencode($ip);
+    $block = urlencode($block);
     return $this->get("/ip/${block}/reverse/${ip}");
   }
 
   public function deleteIpReverse($block, $ip) {
+    $ip = urlencode($ip);
+    $block = urlencode($block);
     return $this->delete("/ip/${block}/reverse/${ip}");
   }
 
@@ -413,6 +418,7 @@ class Ovh {
     if ($ip instanceof IP) {
       $ip = $ip->humanReadable();
     }
+    $block = urlencode($block);
     return $this->post("/ip/${block}/reverse", [
       'ipReverse' => $ip,
       'reverse'   => $reverse
