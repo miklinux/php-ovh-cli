@@ -18,7 +18,7 @@ A simple [OVH API](https://api.ovh.com/console/) client for managing OVH infrast
 - Retrieve information
 - Configure boot mode
 - Enable/disable OVH monitoring
-- Access KVM console (requires Java-WS)
+- Access KVM console (requires Java-WS for jnlp mode)
 - Perform IPMI reset
 - Request hardware reboot
 - Manage renewal
