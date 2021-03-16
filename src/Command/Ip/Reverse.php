@@ -62,7 +62,7 @@ class Reverse extends \OvhCli\Command
       Cli::out("Assigning reverse DNS name '%s' to IP %s (block %s) ...", $reverse, $ip, $block);
       $assign = $this->ovh()->updateIpReverse($block, $ip, $reverse);
     } catch (\Exception $e) {
-      Cli::error($e);
+      Cli::warning($e);
     }
   }
 

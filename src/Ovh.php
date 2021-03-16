@@ -391,6 +391,7 @@ class Ovh {
   }
 
   public function moveIp($ip, $destination) {
+    $ip = urlencode($ip);
     return $this->post("/ip/$ip/move", [
       'nexthop' => null,
       'to'  => $destination,
