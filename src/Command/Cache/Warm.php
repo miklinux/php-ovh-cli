@@ -23,8 +23,8 @@ class Warm extends \OvhCli\Command
     $minutes = (int) ($duration / 60) - $hours * 60;
     $seconds = (int) $duration - $hours * 60 * 60 - $minutes * 60;
     return ($hours == 0 ? "00":$hours) . ":" .
-         ($minutes == 0 ? "00":($minutes < 10? "0".$minutes:$minutes)). ":" .
-         ($seconds == 0 ? "00":($seconds < 10? "0".$seconds:$seconds));
+      ($minutes == 0 ? "00":($minutes < 10 ? "0".$minutes:$minutes)). ":" .
+      ($seconds == 0 ? "00":($seconds < 10 ? "0".$seconds:$seconds));
   }
 
   public function handle(GetOpt $getopt) {
@@ -68,8 +68,7 @@ class Warm extends \OvhCli\Command
       $this->ovh()->getService($service);
     }
     print Cli::green("done\n");
-
-
+    
     printf('%-41s', 'Caching API applications');
     foreach($this->ovh()->getApiApps() as $app) {
       $this->ovh()->getApiApp($app);

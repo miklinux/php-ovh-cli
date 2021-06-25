@@ -22,11 +22,10 @@ class Test extends \OvhCli\Command
       Cli::success("Hi %s %s, OVH API are working properly ;)",
         $me['firstname'],
         $me['name']
-        );
+      );
       print_r($me);
     } catch (\Exception $e) {
       Cli::error($e);
     }
   }
-
 }

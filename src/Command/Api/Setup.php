@@ -21,15 +21,15 @@ class Setup extends \OvhCli\Command
   protected function getTokenUrl() {
     $query = [
       /* Token application description */
-      'applicationName'    => 'api_'. getenv('USER'),
+      'applicationName'        => 'api_'. getenv('USER'),
       'applicationDescription' => 'php-ovh-cli',
       /* Token permissions */
-      'GET'          => '/*',
-      'POST'           => '/*',
-      'PUT'          => '/*',
-      'DELETE'         => '/*',
+      'GET'                    => '/*',
+      'POST'                   => '/*',
+      'PUT'                    => '/*',
+      'DELETE'                 => '/*',
       /* Token duration in seconds */
-      'duration'         => (24 * 60 * 60) * 30,
+      'duration'               => (24 * 60 * 60) * 30,
     ];
     return 'https://api.ovh.com/createToken/index.cgi?' . http_build_query($query);
   }

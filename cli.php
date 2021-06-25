@@ -19,7 +19,7 @@ define('COMMAND_PATH', __DIR__ . '/src/Command');
 
 // set cache
 CacheManager::setDefaultConfig(new CacheConfig([
-  "path" => sys_get_temp_dir(),
+  "path"             => sys_get_temp_dir(),
   "itemDetailedDate" => false
 ]));
 

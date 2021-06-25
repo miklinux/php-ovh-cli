@@ -14,8 +14,8 @@ class Ticket extends \OvhCli\Command
 
   public $shortDescription = "Manage Support Tickets";
   public $usageExamples = [
-    '--list'         => 'List all open tickets',
-    '<ticket-id>'      => 'Shows all messages concerning a ticket',
+    '--list'               => 'List all open tickets',
+    '<ticket-id>'          => 'Shows all messages concerning a ticket',
     '<ticket-id> --last'   => 'Display just the last message',
     '<ticket-id> --reply'  => 'Reply to last message',
     '<ticket-id> --close'  => 'Close the ticket',
@@ -71,19 +71,15 @@ class Ticket extends \OvhCli\Command
     } elseif(!empty($ticketId)) {
       $ticket   = $this->ovh()->getSupportTicket($ticketId);
       $messages = $this->ovh()->getSupportTicketMessages($ticketId);
-
       if ($reply) {
         return $this->replyMessage(array_pop($messages));
       }
-
       if ($close) {
         return $this->closeTicket($ticket);
       }
-
       if ($reopen) {
         return $this->reopenTicket($ticket);
       }
-
       if ($last) {
         return $this->renderMessage(array_pop($messages));
       } else {

@@ -19,10 +19,7 @@ class Command extends \GetOpt\Command
   public function __construct($name, $handler, $options = null) {
     parent::__construct($name, $handler, $options);
     $this->config = Config::getInstance(CONFIG_FILE);
-    if (
-      empty($this->longDescription) &&
-      !empty($this->shortDescription)
-       ) {
+    if (empty($this->longDescription) && !empty($this->shortDescription)) {
       $this->longDescription = $this->shortDescription;
     }
     $this->usageExamples();

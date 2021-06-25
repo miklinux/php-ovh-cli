@@ -9,28 +9,28 @@ namespace OvhCli;
 
 class Cli {
 
-  const COLOR_RED   = '0;31';
-  const COLOR_GREEN   = '0;32';
-  const COLOR_YELLOW  = '0;33';
-  const COLOR_BLUE  = '0;34';
-  const COLOR_MAGENTA = '0;35';
-  const COLOR_CYAN  = '0;36';
-  const COLOR_WHITE   = '0;37';
+  const COLOR_RED           = '0;31';
+  const COLOR_GREEN         = '0;32';
+  const COLOR_YELLOW        = '0;33';
+  const COLOR_BLUE          = '0;34';
+  const COLOR_MAGENTA       = '0;35';
+  const COLOR_CYAN          = '0;36';
+  const COLOR_WHITE         = '0;37';
 
-  const COLOR_BOLD_RED   = '1;31';
-  const COLOR_BOLD_GREEN   = '1;32';
-  const COLOR_BOLD_YELLOW  = '1;33';
-  const COLOR_BOLD_BLUE  = '1;34';
-  const COLOR_BOLD_MAGENTA = '1;35';
-  const COLOR_BOLD_CYAN  = '1;36';
-  const COLOR_BOLD_WHITE   = '1;37';
+  const COLOR_BOLD_RED      = '1;31';
+  const COLOR_BOLD_GREEN    = '1;32';
+  const COLOR_BOLD_YELLOW   = '1;33';
+  const COLOR_BOLD_BLUE     = '1;34';
+  const COLOR_BOLD_MAGENTA  = '1;35';
+  const COLOR_BOLD_CYAN     = '1;36';
+  const COLOR_BOLD_WHITE    = '1;37';
 
-  const COLOR_LIGHT_RED   = '0;91';
+  const COLOR_LIGHT_RED     = '0;91';
   const COLOR_LIGHT_GREEN   = '0;92';
   const COLOR_LIGHT_YELLOW  = '0;93';
-  const COLOR_LIGHT_BLUE  = '0;94';
+  const COLOR_LIGHT_BLUE    = '0;94';
   const COLOR_LIGHT_MAGENTA = '0;95';
-  const COLOR_LIGHT_CYAN  = '0;96';
+  const COLOR_LIGHT_CYAN    = '0;96';
   const COLOR_LIGHT_WHITE   = '0;97';
 
   public static function render($code, $text) {
@@ -126,31 +126,31 @@ class Cli {
     if (isset($options['grep']) && (bool) $options['grep'] === true) {
       return self::formatGrep($data);
     }
-    if (!isset($options['maxSize']))    { $options['maxSize']  = 40; }
-    if (!isset($options['indentSize']))   { $options['indentSize'] = 0;  }
-    if (!isset($options['indentIncr']))   { $options['indentIncr'] = 2;  }
+    if (!isset($options['maxSize']))      { $options['maxSize']  = 40; }
+    if (!isset($options['indentSize']))   { $options['indentSize'] = 0; }
+    if (!isset($options['indentIncr']))   { $options['indentIncr'] = 2; }
     if (!isset($options['noArrayIndex'])) { $options['noArrayIndex'] = false; }
     $spaces = str_repeat(' ', $options['indentSize']);
     $size = $options['maxSize'] - $options['indentSize'];
     foreach($data as $key => $value) {
       if (is_array($value)) {
-      self::out("${spaces}%-${size}s", self::boldWhite($key));
-      self::format($value, array_merge($options, [
-        'maxSize'  => $options['maxSize'],
-        'indentSize' => $options['indentSize'] + $options['indentIncr'],
-        'indentIncr' => $options['indentIncr'],
-      ]));
-      continue;
+        self::out("${spaces}%-${size}s", self::boldWhite($key));
+        self::format($value, array_merge($options, [
+          'maxSize'  => $options['maxSize'],
+          'indentSize' => $options['indentSize'] + $options['indentIncr'],
+          'indentIncr' => $options['indentIncr'],
+        ]));
+        continue;
       }
       if (is_bool($value)) {
-      $value = $value ? self::boldGreen('true') : self::boldRed('false');
+        $value = $value ? self::boldGreen('true') : self::boldRed('false');
       } elseif (empty($value)) {
-       $value = '-';
+        $value = '-';
       }
       if ($options['noArrayIndex'] == true) {
-      self::out("${spaces}%-${size}s", $value);
+        self::out("${spaces}%-${size}s", $value);
       } else {
-      self::out("${spaces}%-${size}s %-${size}s", $key, $value);
+        self::out("${spaces}%-${size}s %-${size}s", $key, $value);
       }
     }
   }

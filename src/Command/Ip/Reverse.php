@@ -15,13 +15,13 @@ class Reverse extends \OvhCli\Command
 {
   public $shortDescription = "Manages dedicated server reverse DNS";
   public $usageExamples = [
-    '-s <host> <reverse>'       => 'Assign reverse on first ips of server\'s assigned blocks',
-    '-s <host> -l'          => 'Retrieves IP reverse from the IP blocks assigned to server',
-    '-s <host> -d'          => 'Delete all IP reverse assigned to server',
+    '-s <host> <reverse>'             => 'Assign reverse on first ips of server\'s assigned blocks',
+    '-s <host> -l'                    => 'Retrieves IP reverse from the IP blocks assigned to server',
+    '-s <host> -d'                    => 'Delete all IP reverse assigned to server',
     '-b <ip-block> -i <ip> <reverse>' => 'Assign reverse on specific IP belonging to an IP block',
-    '-b <ip-block> -l'        => 'Retrieves IP reverse from an IP block',
-    '-v <vrack> -i <ip> <reverse>'  => 'Assign reverse on IP belonging to vRack',
-    '-v <vrack> -l'           => 'Retrieves IP reverse from an IP block assigned to vRack',
+    '-b <ip-block> -l'                => 'Retrieves IP reverse from an IP block',
+    '-v <vrack> -i <ip> <reverse>'    => 'Assign reverse on IP belonging to vRack',
+    '-v <vrack> -l'                   => 'Retrieves IP reverse from an IP block assigned to vRack',
   ];
 
   public function __construct() {
@@ -129,7 +129,6 @@ class Reverse extends \OvhCli\Command
             continue;
           }
         }
-
         if ($delete) {
           $this->deleteReverse($block, $ip);
           continue;

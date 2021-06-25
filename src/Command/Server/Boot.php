@@ -15,10 +15,10 @@ class Boot extends \OvhCli\Command
 
   public $shortDescription = "Changes server boot mode";
   public $usageExamples = [
-    '-a'         => 'Retrieve current boot mode for all servers',
-    '-a --hd'      => 'Set boot from HARDDISK on all servers',
+    '-a'             => 'Retrieve current boot mode for all servers',
+    '-a --hd'        => 'Set boot from HARDDISK on all servers',
     '-a --rescue'    => 'Set boot from RESCUE on all servers',
-    'my.server --hd'   => 'Set boot from HARDDISK for my.server',
+    'my.server --hd' => 'Set boot from HARDDISK for my.server',
   ];
   public function __construct() {
     parent::__construct($this->getName(), [$this, 'handle']);

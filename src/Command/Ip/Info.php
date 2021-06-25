@@ -40,7 +40,5 @@ class Info extends \OvhCli\Command
     } catch (\Exception $e) {
       Cli::error($e);
     }
-
-
   }
 }
