@@ -42,6 +42,7 @@ class Console extends \OvhCli\Command
         ->setDefaultValue(self::DEFAULT_TTL),
       Option::create('m', 'mode', GetOpt::REQUIRED_ARGUMENT)
         ->setDescription('Console mode (default: '. self::DEFAULT_MODE .')')
+        ->setDefaultValue(self::DEFAULT_MODE),
     ]);
 
   }
