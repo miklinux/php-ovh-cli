@@ -12,11 +12,12 @@ class Monitoring extends \OvhCli\Command
 {
   public $shortDescription = "Manages dedicated server OVH monitoring";
   public $usageExamples = [
-    '-a'       => 'Check monitoring status on ALL servers',
-    '-a --on'    => 'Enable monitoring on ALL servers',
-    '-a --off'     => 'Disable monitoring on ALL servers',
-    '<server> --on'  => 'Enable monitoring on single server',
-    '<server> --off' => 'Disable monitoring on single server',
+    '-a'                 => 'Check monitoring status on ALL servers',
+    '-a --show-disabled' => 'Check monitoring status on ALL servers but report only the ones disabled',
+    '-a --on'            => 'Enable monitoring on ALL servers',
+    '-a --off'           => 'Disable monitoring on ALL servers',
+    '<server> --on'      => 'Enable monitoring on single server',
+    '<server> --off'     => 'Disable monitoring on single server',
   ];
 
   public function __construct() {
@@ -34,13 +35,16 @@ class Monitoring extends \OvhCli\Command
         ->setDescription('Enable monitoring'),
       Option::create(null, 'off', GetOpt::NO_ARGUMENT)
         ->setDescription('Disable monitoring'),
+      Option::create('d', 'show-disabled', GetOpt::NO_ARGUMENT)
+        ->setDescription('Show servers with monitoring disabled only'),
     ]);
   }
 
   public function handle(GetOpt $getopt) {
     $all   = (bool) $getopt->getOption('all');
-    $on  = (bool) $getopt->getOption('on');
+    $on    = (bool) $getopt->getOption('on');
     $off   = (bool) $getopt->getOption('off');
+    $showdisabled = (bool) $getopt->getOption('show-disabled');
     $check = null;
 
     if ($on && $off) {
@@ -73,6 +77,9 @@ class Monitoring extends \OvhCli\Command
       $details = $this->ovh()->getServerDetails($server);
       $status = (bool) $details['monitoring'];
       if (!$on && !$off) {
+        if ($showdisabled == true && $status == true) {
+          continue;
+        }
         $data[$server] = [
           'reverse' => $details['reverse'],
           'enabled' => $status,
@@ -87,10 +94,10 @@ class Monitoring extends \OvhCli\Command
           ]);
         }
       }
-      asort($data);
-      Cli::format($data, [
-        'grep' => (bool) $getopt->getOption('grep'),
-      ]);
     }
+    asort($data);
+    Cli::format($data, [
+      'grep' => (bool) $getopt->getOption('grep'),
+    ]);
   }
 }
