@@ -12,23 +12,21 @@ use OvhCli\Cli;
 
 class Resolve extends \OvhCli\Command
 {
-    public $shortDescription = "Resolve IP/Host to OVH hostname";
+  public $shortDescription = "Resolve IP/Host to OVH hostname";
 
-    public function __construct()
-    {
-        parent::__construct($this->getName(), [$this, 'handle']);
-        $this->addOperands([
+  public function __construct() {
+    parent::__construct($this->getName(), [$this, 'handle']);
+    $this->addOperands([
       Operand::create('host', \GetOpt\Operand::REQUIRED)
         ->setDescription('Host')
     ]);
-    }
+  }
 
-    public function handle(GetOpt $getopt)
-    {
-        try {
-            Cli::out($this->resolve($getopt->getOperand('host')));
-        } catch (\Exception $e) {
-            Cli::error($e);
-        }
+  public function handle(GetOpt $getopt) {
+    try {
+      Cli::out($this->resolve($getopt->getOperand('host')));
+    } catch (\Exception $e) {
+      Cli::error($e);
     }
+  }
 }

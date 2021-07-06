@@ -10,8 +10,8 @@ use OvhCli\Cli;
 
 class Monitoring extends \OvhCli\Command
 {
-    public $shortDescription = "Manages dedicated server OVH monitoring";
-    public $usageExamples = [
+  public $shortDescription = "Manages dedicated server OVH monitoring";
+  public $usageExamples = [
     '-a'                 => 'Check monitoring status on ALL servers',
     '-a --show-disabled' => 'Check monitoring status on ALL servers but report only the ones disabled',
     '-a --on'            => 'Enable monitoring on ALL servers',
@@ -20,16 +20,15 @@ class Monitoring extends \OvhCli\Command
     '<server> --off'     => 'Disable monitoring on single server',
   ];
 
-    public function __construct()
-    {
-        parent::__construct($this->getName(), [$this, 'handle']);
+  public function __construct() {
+    parent::__construct($this->getName(), [$this, 'handle']);
 
-        $this->addOperands([
+    $this->addOperands([
       Operand::create('server', Operand::MULTIPLE)
         ->setDescription('Server name')
     ]);
 
-        $this->addOptions([
+    $this->addOptions([
       Option::create('a', 'all', GetOpt::NO_ARGUMENT)
         ->setDescription('Check all servers'),
       Option::create(null, 'on', GetOpt::NO_ARGUMENT)
@@ -39,67 +38,66 @@ class Monitoring extends \OvhCli\Command
       Option::create('d', 'show-disabled', GetOpt::NO_ARGUMENT)
         ->setDescription('Show servers with monitoring disabled only'),
     ]);
+  }
+
+  public function handle(GetOpt $getopt) {
+    $all   = (bool) $getopt->getOption('all');
+    $on    = (bool) $getopt->getOption('on');
+    $off   = (bool) $getopt->getOption('off');
+    $showdisabled = (bool) $getopt->getOption('show-disabled');
+    $check = null;
+
+    if ($on && $off) {
+      die("ERROR: please choose one between --on and --off\n");
+    } elseif ($on) {
+      $check = true;
+    } elseif ($off) {
+      $check = false;
     }
 
-    public function handle(GetOpt $getopt)
-    {
-        $all   = (bool) $getopt->getOption('all');
-        $on    = (bool) $getopt->getOption('on');
-        $off   = (bool) $getopt->getOption('off');
-        $showdisabled = (bool) $getopt->getOption('show-disabled');
-        $check = null;
+    if ($all) {
+      $servers = $this->ovh()->getServers();
+    } else {
+      $servers = $this->getOperand('server')->getValue();
+    }
+    $servers = array_unique($servers);
+    $n = count($servers);
 
-        if ($on && $off) {
-            die("ERROR: please choose one between --on and --off\n");
-        } elseif ($on) {
-            $check = true;
-        } elseif ($off) {
-            $check = false;
+    if ($n == 0) {
+      echo $getopt->getHelpText();
+      exit();
+    }
+
+    $data = [];
+    $i = 0;
+    foreach($servers as $server) {
+      $server = $this->resolve($server);
+      $i++;
+
+      $details = $this->ovh()->getServerDetails($server);
+      $status = (bool) $details['monitoring'];
+      if (!$on && !$off) {
+        if ($showdisabled == true && $status == true) {
+          continue;
         }
-
-        if ($all) {
-            $servers = $this->ovh()->getServers();
-        } else {
-            $servers = $this->getOperand('server')->getValue();
-        }
-        $servers = array_unique($servers);
-        $n = count($servers);
-
-        if ($n == 0) {
-            echo $getopt->getHelpText();
-            exit();
-        }
-
-        $data = [];
-        $i = 0;
-        foreach ($servers as $server) {
-            $server = $this->resolve($server);
-            $i++;
-
-            $details = $this->ovh()->getServerDetails($server);
-            $status = (bool) $details['monitoring'];
-            if (!$on && !$off) {
-                if ($showdisabled == true && $status == true) {
-                    continue;
-                }
-                $data[$server] = [
+        $data[$server] = [
           'reverse' => $details['reverse'],
           'enabled' => $status,
         ];
-            }
-            if ($check !== null) {
-                if ($status !== $check) {
-                    $checkAction = $check ? 'Enabling' : 'Disabling';
-                    Cli::out("%s monitoring on %s (%s) ...", $checkAction, $server, $details['reverse']);
-                    $this->ovh()->updateServer($server, [
+      }
+      if ($check !== null) {
+        if ($status !== $check) {
+          $checkAction = $check ? 'Enabling' : 'Disabling';
+          Cli::out("%s monitoring on %s (%s) ...", $checkAction, $server, $details['reverse']);
+          $this->ovh()->updateServer($server, [
             'monitoring' => $check
           ]);
-                }
-            }
         }
-        asort($data);
-        Cli::format($data, [
+      }
+    }
+    asort($data);
+    Cli::format($data, [
       'grep' => (bool) $getopt->getOption('grep'),
     ]);
-    }
+  }
 }

@@ -10,15 +10,15 @@ use OvhCli\Cli;
 
 class Ticket extends \OvhCli\Command
 {
-    public const DELIMITER = '====== ^^ WRITE YOUR TEXT ABOVE ^^ ==== DO NOT CHANGE THIS LINE ======';
+  const DELIMITER = '====== ^^ WRITE YOUR TEXT ABOVE ^^ ==== DO NOT CHANGE THIS LINE ======';
 
-    protected $categories = [
+  protected $categories = [
     'billing',
     'assistance',
     'incident',
   ];
 
-    protected $subcategories = [
+  protected $subcategories = [
     'alerts',
     'autorenew',
     'bill',
@@ -31,7 +31,7 @@ class Ticket extends \OvhCli\Command
     'usage',
   ];
 
-    protected $products = [
+  protected $products = [
     'adsl',
     'cdn',
     'dedicated',
@@ -59,8 +59,8 @@ class Ticket extends \OvhCli\Command
     'web-other',
   ];
 
-    public $shortDescription = "Manage Support Tickets";
-    public $usageExamples = [
+  public $shortDescription = "Manage Support Tickets";
+  public $usageExamples = [
     '--list'               => 'List all open tickets',
     '--new'                => 'Create new ticket',
     '<ticket-id>'          => 'Shows all messages concerning a ticket',
@@ -70,16 +70,15 @@ class Ticket extends \OvhCli\Command
     '<ticket-id> --reopen' => 'Reopen a closed ticket',
   ];
 
-    public function __construct()
-    {
-        parent::__construct($this->getName(), [$this, 'handle']);
+  public function __construct() {
+    parent::__construct($this->getName(), [$this, 'handle']);
 
-        $this->addOperands([
+    $this->addOperands([
       Operand::create('ticket-id', Operand::OPTIONAL)
         ->setDescription('Ticket id')
     ]);
 
-        $this->addOptions([
+    $this->addOptions([
       Option::create('k', 'new', GetOpt::NO_ARGUMENT)
         ->setDescription('Open new ticket'),
       Option::create('l', 'list', GetOpt::NO_ARGUMENT)
@@ -93,29 +92,22 @@ class Ticket extends \OvhCli\Command
       Option::create('o', 'reopen', GetOpt::NO_ARGUMENT)
         ->setDescription('Reopen specified ticket'),
     ]);
-    }
+  }
 
-    protected function openTicket()
-    {
-        $category = Cli::multiChoicePrompt(
-            'Ticket category',
-            $this->categories,
-            '3'
-        );
-        $subcategory = Cli::multiChoicePrompt(
-            'Ticket subcategory',
-            $this->subcategories,
-            '6',
-        );
-        $product = Cli::multiChoicePrompt(
-            'Related to product',
-            $this->products,
-            '3',
-        );
-        $subject = Cli::prompt('Ticket subject', 'Generic request');
-        $serviceName = Cli::prompt('Service name');
-        $body = $this->editMessage([ 'body' => null ]);
-        $request = [
+  protected function openTicket() {
+    $category = Cli::multiChoicePrompt(
+      'Ticket category', $this->categories, '3'
+    );
+    $subcategory = Cli::multiChoicePrompt(
+      'Ticket subcategory', $this->subcategories, '6',
+    );
+    $product = Cli::multiChoicePrompt(
+      'Related to product', $this->products, '3',
+    );
+    $subject = Cli::prompt('Ticket subject', 'Generic request');
+    $serviceName = Cli::prompt('Service name');
+    $body = $this->editMessage([ 'body' => null ]);
+    $request = [
       'subject'     => $subject,
       'category'    => $category,
       'subcategory' => $subcategory,
@@ -123,159 +115,150 @@ class Ticket extends \OvhCli\Command
       'serviceName' => $serviceName,
       'body'        => $body,
     ];
-        Cli::format($request);
-        #$res = $this->ovh()->createSupportTicket($request);
-        return $res;
-    }
+    Cli::format($request);
+    #$res = $this->ovh()->createSupportTicket($request);
+    return $res;
+  }
 
-    public function handle(GetOpt $getopt)
-    {
-        \OvhCli\Ovh::disableCache();
-        $ticketId = $getopt->getOperand('ticket-id');
-        $list     = (bool) $getopt->getOption('list');
-        $reply    = (bool) $getopt->getOption('reply');
-        $last     = (bool) $getopt->getOption('last');
-        $open     = (bool) $getopt->getOption('new');
-        $close    = (bool) $getopt->getOption('close');
-        $reopen   = (bool) $getopt->getOption('reopen');
-        if ($open) {
-            return $this->openTicket();
-        }
-        if ($list) {
-            $ticketIds = $this->ovh()->getSupportTickets([
+  public function handle(GetOpt $getopt) {
+    \OvhCli\Ovh::disableCache();
+    $ticketId = $getopt->getOperand('ticket-id');
+    $list     = (bool) $getopt->getOption('list');
+    $reply    = (bool) $getopt->getOption('reply');
+    $last     = (bool) $getopt->getOption('last');
+    $open     = (bool) $getopt->getOption('new');
+    $close    = (bool) $getopt->getOption('close');
+    $reopen   = (bool) $getopt->getOption('reopen');
+    if ($open) {
+      return $this->openTicket();
+    }
+    if ($list) {
+      $ticketIds = $this->ovh()->getSupportTickets([
         'status' => 'open',
       ]);
-            foreach ($ticketIds as $ticketId) {
-                $ticket = $this->ovh()->getSupportTicket($ticketId);
-                $awaitingReply = ($ticket['lastMessageFrom'] == 'support');
-                if ($awaitingReply) {
-                    $subject = Cli::red($ticket['subject']);
-                    $mark  = Cli::boldRed('  *NEW*');
-                } else {
-                    $subject = $ticket['subject'];
-                    $mark  = null;
-                }
-                printf("%-10s %s\n", $ticketId, "[TICKET#". $ticket['ticketNumber'] ."] ". $subject . $mark);
-            }
-        } elseif (!empty($ticketId)) {
-            $ticket   = $this->ovh()->getSupportTicket($ticketId);
-            $messages = $this->ovh()->getSupportTicketMessages($ticketId);
-            if ($reply) {
-                return $this->replyMessage(array_shift($messages));
-            }
-            if ($close) {
-                return $this->closeTicket($ticket);
-            }
-            if ($reopen) {
-                return $this->reopenTicket($ticket);
-            }
-            if ($last) {
-                return $this->renderMessage(array_shift($messages));
-            } else {
-                Cli::format($ticket);
-                foreach ($messages as $message) {
-                    $this->renderMessage($message);
-                }
-                print PHP_EOL;
-            }
+      foreach($ticketIds as $ticketId) {
+        $ticket = $this->ovh()->getSupportTicket($ticketId);
+        $awaitingReply = ($ticket['lastMessageFrom'] == 'support');
+        if ($awaitingReply) {
+          $subject = Cli::red($ticket['subject']);
+          $mark  = Cli::boldRed('  *NEW*');
         } else {
-            print $getopt->getHelpText();
-            exit();
+          $subject = $ticket['subject'];
+          $mark  = null;
         }
+        printf("%-10s %s\n", $ticketId, "[TICKET#". $ticket['ticketNumber'] ."] ". $subject . $mark);
+      }
+    } elseif(!empty($ticketId)) {
+      $ticket   = $this->ovh()->getSupportTicket($ticketId);
+      $messages = $this->ovh()->getSupportTicketMessages($ticketId);
+      if ($reply) {
+        return $this->replyMessage(array_shift($messages));
+      }
+      if ($close) {
+        return $this->closeTicket($ticket);
+      }
+      if ($reopen) {
+        return $this->reopenTicket($ticket);
+      }
+      if ($last) {
+        return $this->renderMessage(array_shift($messages));
+      } else {
+        Cli::format($ticket);
+        foreach($messages as $message) {
+          $this->renderMessage($message);
+        }
+        print PHP_EOL;
+      }
+    } else {
+      print $getopt->getHelpText();
+      exit();
     }
+  }
 
-    public function closeTicket($ticket)
-    {
-        if ($ticket['state'] == 'closed') {
-            Cli::error("Ticket [{$ticket['ticketId']} : {$ticket['subject']}] is already closed");
-        }
-        if (!Cli::confirm("Are you sure to close ticket [{$ticket['ticketId']} : {$ticket['subject']}] ?", false)) {
-            return false;
-        }
-        try {
-            $this->ovh()->closeSupportTicket($ticket['ticketId']);
-            Cli::success('Support ticket has been closed');
-        } catch (\Exception $e) {
-            Cli::error($e);
-        }
+  public function closeTicket($ticket) {
+    if ($ticket['state'] == 'closed') {
+      Cli::error("Ticket [{$ticket['ticketId']} : {$ticket['subject']}] is already closed");
     }
-
-    public function reopenTicket($ticket)
-    {
-        if ($ticket['state'] == 'open') {
-            Cli::error("Ticket [{$ticket['ticketId']} : {$ticket['subject']}] is already open");
-        }
-        $reply = $this->editMessage($message);
-        try {
-            $this->ovh()->reopenSupportTicket($message['ticketId'], $reply);
-            Cli::success('Ticket has been reopened and your reply has been sent!');
-        } catch (\Exception $e) {
-            Cli::error($e);
-        }
+    if (!Cli::confirm("Are you sure to close ticket [{$ticket['ticketId']} : {$ticket['subject']}] ?", false)) {
+      return false;
     }
-
-    public function renderMessage($message)
-    {
-        printf(
-            "\n%s %s -- %s %s\n\n",
-            Cli::boldWhite("Date:"),
-            Cli::yellow($message['creationDate']),
-            Cli::boldWhite("From:"),
-            Cli::boldYellow(strtoupper($message['from']))
-        );
-        print Cli::lightBlue(wordwrap(trim($message['body']), 80)) . PHP_EOL;
+    try {
+      $this->ovh()->closeSupportTicket($ticket['ticketId']);
+      Cli::success('Support ticket has been closed');
+    } catch (\Exception $e) {
+      Cli::error($e);
     }
+  }
 
-    public function editMessage($message, $tempFile = null)
-    {
-        if (!is_executable($this->config->editor)) {
-            Cli::error('No editor has been set! Please run api:setup');
-        }
-        if (null == $tempFile) {
-            $tempFile = Cli::tempFile(sprintf(
-                "\n\n%s\n\n%s",
-                self::DELIMITER,
-                str_replace("\r", "", $message['body']), # Remove MS carriage return
-            ));
-        }
-        $cmd = sprintf("%s %s > `tty`; clear", $this->config->editor, $tempFile);
-        system($cmd);
-
-        $reply = null;
-        $delimiterFound = false;
-        foreach (file($tempFile) as $line) {
-            if (trim($line) == self::DELIMITER) {
-                $delimiterFound = true;
-                break;
-            }
-            $reply .= $line;
-        }
-        if (!$delimiterFound) {
-            Cli::anykey(Cli::boldRed('ERROR: Unable to find message delimiter! I will create a new message!'));
-            unlink($tempFile);
-            return $this->editMessage($message);
-        }
-        $reply = trim($reply);
-        if (empty($reply)) {
-            Cli::anykey(Cli::boldRed('ERROR: Cannot send an empty message!'));
-            return $this->editMessage($message, $tempFile);
-        }
-        print PHP_EOL . Cli::lightBlue(wordwrap($reply, 80)) . PHP_EOL . PHP_EOL;
-        if (!Cli::confirm("Do you want to send this message?", false)) {
-            return $this->editMessage($message, $tempFile);
-        }
-        unlink($tempFile);
-        return $reply;
+  public function reopenTicket($ticket) {
+    if ($ticket['state'] == 'open') {
+      Cli::error("Ticket [{$ticket['ticketId']} : {$ticket['subject']}] is already open");
     }
-
-    public function replyMessage($message)
-    {
-        $reply = $this->editMessage($message);
-        try {
-            $this->ovh()->replyToSupportTicket($message['ticketId'], $reply);
-            Cli::success('Reply has been sent!');
-        } catch (\Exception $e) {
-            Cli::error($e);
-        }
+    $reply = $this->editMessage($message);
+    try {
+      $this->ovh()->reopenSupportTicket($message['ticketId'], $reply);
+      Cli::success('Ticket has been reopened and your reply has been sent!');
+    } catch (\Exception $e) {
+      Cli::error($e);
     }
+  }
+
+  public function renderMessage($message) {
+    printf("\n%s %s -- %s %s\n\n",
+      Cli::boldWhite("Date:"), Cli::yellow($message['creationDate']),
+      Cli::boldWhite("From:"), Cli::boldYellow(strtoupper($message['from']))
+    );
+    print Cli::lightBlue(wordwrap(trim($message['body']), 80)) . PHP_EOL;
+  }
+
+  public function editMessage($message, $tempFile = null) {
+    if (!is_executable($this->config->editor)) {
+      Cli::error('No editor has been set! Please run api:setup');
+    }
+    if (null == $tempFile) {
+      $tempFile = Cli::tempFile(sprintf(
+        "\n\n%s\n\n%s",
+        self::DELIMITER,
+        str_replace("\r", "", $message['body']), # Remove MS carriage return
+      ));
+    }
+    $cmd = sprintf("%s %s > `tty`; clear", $this->config->editor, $tempFile);
+    system($cmd);
+
+    $reply = null;
+    $delimiterFound = false;
+    foreach(file($tempFile) as $line) {
+      if (trim($line) == self::DELIMITER) {
+        $delimiterFound = true;
+        break;
+      }
+      $reply .= $line;
+    }
+    if (!$delimiterFound) {
+      Cli::anykey(Cli::boldRed('ERROR: Unable to find message delimiter! I will create a new message!'));
+      unlink($tempFile);
+      return $this->editMessage($message);
+    }
+    $reply = trim($reply);
+    if (empty($reply)) {
+      Cli::anykey(Cli::boldRed('ERROR: Cannot send an empty message!'));
+      return $this->editMessage($message, $tempFile);
+    }
+    print PHP_EOL . Cli::lightBlue(wordwrap($reply, 80)) . PHP_EOL . PHP_EOL;
+    if (!Cli::confirm("Do you want to send this message?", false)) {
+      return $this->editMessage($message, $tempFile);
+    }
+    unlink($tempFile);
+    return $reply;
+  }
+
+  public function replyMessage($message) {
+    $reply = $this->editMessage($message);
+    try {
+      $this->ovh()->replyToSupportTicket($message['ticketId'], $reply);
+      Cli::success('Reply has been sent!');
+    } catch (\Exception $e) {
+      Cli::error($e);
+    }
+  }
 }
