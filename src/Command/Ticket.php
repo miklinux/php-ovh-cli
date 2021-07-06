@@ -12,9 +12,57 @@ class Ticket extends \OvhCli\Command
 {
   const DELIMITER = '====== ^^ WRITE YOUR TEXT ABOVE ^^ ==== DO NOT CHANGE THIS LINE ======';
 
+  protected $categories = [
+    'billing',
+    'assistance',
+    'incident',
+  ];
+
+  protected $subcategories = [
+    'alerts',
+    'autorenew',
+    'bill',
+    'down',
+    'inProgress',
+    'new',
+    'other',
+    'perfs',
+    'start',
+    'usage',
+  ];
+
+  protected $products = [
+    'adsl',
+    'cdn',
+    'dedicated',
+    'dedicated-billing',
+    'dedicated-other',
+    'dedicatedcloud',
+    'domain',
+    'exchange',
+    'fax',
+    'hosting',
+    'housing',
+    'iaas',
+    'mail',
+    'network',
+    'publiccloud',
+    'sms',
+    'ssl',
+    'storage',
+    'telecom-billing',
+    'telecom-other',
+    'vac',
+    'voip',
+    'vps',
+    'web-billing',
+    'web-other',
+  ];
+
   public $shortDescription = "Manage Support Tickets";
   public $usageExamples = [
     '--list'               => 'List all open tickets',
+    '--new'                => 'Create new ticket',
     '<ticket-id>'          => 'Shows all messages concerning a ticket',
     '<ticket-id> --last'   => 'Display just the last message',
     '<ticket-id> --reply'  => 'Reply to last message',
@@ -31,6 +79,8 @@ class Ticket extends \OvhCli\Command
     ]);
 
     $this->addOptions([
+      Option::create('k', 'new', GetOpt::NO_ARGUMENT)
+        ->setDescription('Open new ticket'),
       Option::create('l', 'list', GetOpt::NO_ARGUMENT)
         ->setDescription('List available tickets'),
       Option::create('x', 'last', GetOpt::NO_ARGUMENT)
@@ -44,14 +94,44 @@ class Ticket extends \OvhCli\Command
     ]);
   }
 
+  protected function openTicket() {
+    $category = Cli::multiChoicePrompt(
+      'Ticket category', $this->categories, '3'
+    );
+    $subcategory = Cli::multiChoicePrompt(
+      'Ticket subcategory', $this->subcategories, '6',
+    );
+    $product = Cli::multiChoicePrompt(
+      'Related to product', $this->products, '3',
+    );
+    $subject = Cli::prompt('Ticket subject', 'Generic request');
+    $serviceName = Cli::prompt('Service name');
+    $body = $this->editMessage([ 'body' => null ]);
+    $request = [
+      'subject'     => $subject,
+      'category'    => $category,
+      'subcategory' => $subcategory,
+      'product'     => $product,
+      'serviceName' => $serviceName,
+      'body'        => $body,
+    ];
+    Cli::format($request);
+    #$res = $this->ovh()->createSupportTicket($request);
+    return $res;
+  }
+
   public function handle(GetOpt $getopt) {
     \OvhCli\Ovh::disableCache();
     $ticketId = $getopt->getOperand('ticket-id');
-    $list   = (bool) $getopt->getOption('list');
-    $reply  = (bool) $getopt->getOption('reply');
-    $last   = (bool) $getopt->getOption('last');
-    $close  = (bool) $getopt->getOption('close');
+    $list     = (bool) $getopt->getOption('list');
+    $reply    = (bool) $getopt->getOption('reply');
+    $last     = (bool) $getopt->getOption('last');
+    $open     = (bool) $getopt->getOption('new');
+    $close    = (bool) $getopt->getOption('close');
     $reopen   = (bool) $getopt->getOption('reopen');
+    if ($open) {
+      return $this->openTicket();
+    }
     if ($list) {
       $ticketIds = $this->ovh()->getSupportTickets([
         'status' => 'open',
@@ -72,7 +152,7 @@ class Ticket extends \OvhCli\Command
       $ticket   = $this->ovh()->getSupportTicket($ticketId);
       $messages = $this->ovh()->getSupportTicketMessages($ticketId);
       if ($reply) {
-        return $this->replyMessage(array_pop($messages));
+        return $this->replyMessage(array_shift($messages));
       }
       if ($close) {
         return $this->closeTicket($ticket);
@@ -81,7 +161,7 @@ class Ticket extends \OvhCli\Command
         return $this->reopenTicket($ticket);
       }
       if ($last) {
-        return $this->renderMessage(array_pop($messages));
+        return $this->renderMessage(array_shift($messages));
       } else {
         Cli::format($ticket);
         foreach($messages as $message) {
@@ -139,7 +219,7 @@ class Ticket extends \OvhCli\Command
       $tempFile = Cli::tempFile(sprintf(
         "\n\n%s\n\n%s",
         self::DELIMITER,
-        $message['body']
+        str_replace("\r", "", $message['body']), # Remove MS carriage return
       ));
     }
     $cmd = sprintf("%s %s > `tty`; clear", $this->config->editor, $tempFile);

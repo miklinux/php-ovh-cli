@@ -92,8 +92,31 @@ class Cli {
     if (strlen($default) == 0) {
       $default = $default_empty;
     }
-    printf("%-20s [%s]: ", $message, self::boldWhite($default));
+    if (strlen($default) > 0) {
+      printf("%-20s [%s]: ", $message, self::boldWhite($default));
+    } else {
+      printf("%s: ", $message);
+    }
     return self::read($default);
+  }
+
+  public static function multiChoicePrompt($message, $items, $default = null) {
+    foreach($items as $i => $v) {
+      $n = $i + 1;
+      $option = ($n == $default) ? Cli::boldWhite($v) : $v;
+      printf("  %-3s %s\n", $n.')', $option);
+    }
+    # Old-style programming to the rescue!!!
+    retry:
+    $choice = self::prompt($message, $default);
+    if (!is_numeric($choice)) {
+      goto retry;
+    }
+    $newvalue = $items[ $choice - 1 ];
+    if (empty($newvalue)) {
+      goto retry;
+    }
+    return $newvalue;
   }
 
   public static function anykey($message) {
