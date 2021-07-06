@@ -10,22 +10,25 @@ use OvhCli\Cli;
 
 class Test extends \OvhCli\Command
 {
-  public $shortDescription = "Tests if API is working";
+    public $shortDescription = "Tests if API is working";
 
-  public function __construct() {
-    parent::__construct($this->getName(), [$this, 'handle']);
-  }
-
-  public function handle(GetOpt $getopt) {
-    try {
-      $me = $this->ovh()->getUser();
-      Cli::success("Hi %s %s, OVH API are working properly ;)",
-        $me['firstname'],
-        $me['name']
-      );
-      print_r($me);
-    } catch (\Exception $e) {
-      Cli::error($e);
+    public function __construct()
+    {
+        parent::__construct($this->getName(), [$this, 'handle']);
     }
-  }
+
+    public function handle(GetOpt $getopt)
+    {
+        try {
+            $me = $this->ovh()->getUser();
+            Cli::success(
+                "Hi %s %s, OVH API are working properly ;)",
+                $me['firstname'],
+                $me['name']
+            );
+            print_r($me);
+        } catch (\Exception $e) {
+            Cli::error($e);
+        }
+    }
 }

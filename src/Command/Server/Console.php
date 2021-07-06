@@ -10,27 +10,28 @@ use OvhCli\Cli;
 
 class Console extends \OvhCli\Command
 {
-  public $shortDescription = "Open a KVM session";
+    public $shortDescription = "Open a KVM session";
 
-  const DEFAULT_ATTEMPTS = 10;
-  const DEFAULT_DELAY  = 5;
-  const DEFAULT_TTL    = 15;
-  const DEFAULT_MODE   = 'jnlp';
+    public const DEFAULT_ATTEMPTS = 10;
+    public const DEFAULT_DELAY  = 5;
+    public const DEFAULT_TTL    = 15;
+    public const DEFAULT_MODE   = 'jnlp';
 
-  private $modes = [
+    private $modes = [
     'jnlp'  => 'kvmipJnlp',
     'html5' => 'kvmipHtml5URL',
   ];
 
-  public function __construct() {
-    parent::__construct($this->getName(), [$this, 'handle']);
+    public function __construct()
+    {
+        parent::__construct($this->getName(), [$this, 'handle']);
 
-    $this->addOperands([
+        $this->addOperands([
       Operand::create('server', \GetOpt\Operand::REQUIRED)
         ->setDescription('Server name')
     ]);
 
-    $this->addOptions([
+        $this->addOptions([
       Option::create('a', 'attempts', GetOpt::REQUIRED_ARGUMENT)
         ->setDescription('Max numbers of attempts (default: '. self::DEFAULT_ATTEMPTS .')')
         ->setDefaultValue(self::DEFAULT_ATTEMPTS),
@@ -44,64 +45,65 @@ class Console extends \OvhCli\Command
         ->setDescription('Console mode (default: '. self::DEFAULT_MODE .')')
         ->setDefaultValue(self::DEFAULT_MODE),
     ]);
-
-  }
-
-  private function getAvailableModes() {
-    return(array_keys($this->modes));
-  }
-
-  public function handle(GetOpt $getopt) {
-    $server   = $this->resolve($getopt->getOperand('server'));
-    $attempts = (int) $getopt->getOption('attempts');
-    $delay  = (int) $getopt->getOption('delay');
-    $ttl    = (int) $getopt->getOption('ttl');
-    $mode   = $getopt->getOption('mode');
-
-    $availableModes = $this->getAvailableModes();
-    if (!in_array($mode, $availableModes)) {
-      Cli::error("Invalid console mode '%s'. Valid ones are: %s", $mode, implode(', ', $availableModes));
     }
 
-    if ($mode == 'jnlp' && !is_executable($this->config->javaws)) {
-      Cli::error("Not an valid executable '%s' - Please run api::setup!", $this->config->javaws);
+    private function getAvailableModes()
+    {
+        return(array_keys($this->modes));
     }
 
-    // Disable cache and dry run by default
-    \OvhCli\Ovh::disableCache(true);
-    \OvhCli\Ovh::setDryRun(false);
+    public function handle(GetOpt $getopt)
+    {
+        $server   = $this->resolve($getopt->getOperand('server'));
+        $attempts = (int) $getopt->getOption('attempts');
+        $delay  = (int) $getopt->getOption('delay');
+        $ttl    = (int) $getopt->getOption('ttl');
+        $mode   = $getopt->getOption('mode');
 
-    try {
-      Cli::out('Requesting %s IPMI access for %s (TTL %d) ...', strtoupper($mode), $server, $ttl);
-      $access = $this->ovh()->requestServerIpmiAccess($server, [
+        $availableModes = $this->getAvailableModes();
+        if (!in_array($mode, $availableModes)) {
+            Cli::error("Invalid console mode '%s'. Valid ones are: %s", $mode, implode(', ', $availableModes));
+        }
+
+        if ($mode == 'jnlp' && !is_executable($this->config->javaws)) {
+            Cli::error("Not an valid executable '%s' - Please run api::setup!", $this->config->javaws);
+        }
+
+        // Disable cache and dry run by default
+        \OvhCli\Ovh::disableCache(true);
+        \OvhCli\Ovh::setDryRun(false);
+
+        try {
+            Cli::out('Requesting %s IPMI access for %s (TTL %d) ...', strtoupper($mode), $server, $ttl);
+            $access = $this->ovh()->requestServerIpmiAccess($server, [
         'ttl'  => $ttl,
         'type' => $this->modes[$mode],
       ]);
-      Cli::out("IPMI access request sent... Waiting for session (This may take a while)...");
-    } catch (\Exception $e) {
-      Cli::error($e);
-    }
+            Cli::out("IPMI access request sent... Waiting for session (This may take a while)...");
+        } catch (\Exception $e) {
+            Cli::error($e);
+        }
 
-    for($i=1; $i<=$attempts; $i++) {
-      if ($i > 1) {
-        sleep($delay);
-      }
-      Cli::out('[%d/%d] Attempting to retrieve access data ...', $i, $attempts);
-      try {
-        $data = $this->ovh()->getServerIpmiAccessData($server, [
+        for ($i=1; $i<=$attempts; $i++) {
+            if ($i > 1) {
+                sleep($delay);
+            }
+            Cli::out('[%d/%d] Attempting to retrieve access data ...', $i, $attempts);
+            try {
+                $data = $this->ovh()->getServerIpmiAccessData($server, [
           'type' => $this->modes[$mode],
         ]);
-        break;
-      } catch (\Exception $e) {
-        continue;
-      }
-    }
+                break;
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
 
-    if (empty($data)) {
-      Cli::error('Server returned no data. Please try again!');
-    }
+        if (empty($data)) {
+            Cli::error('Server returned no data. Please try again!');
+        }
 
-    switch ($mode) {
+        switch ($mode) {
       case 'jnlp':
         $jnlp = Cli::tempFile($data['value']);
         Cli::out('JNLP file saved to %s ...', $jnlp);
@@ -114,10 +116,9 @@ class Console extends \OvhCli\Command
         Cli::out("Opening browser to: %s", $data['value']);
         $xdgOpen = trim(@shell_exec('which xdg-open'));
         if (!empty($xdgOpen)) {
-          shell_exec(sprintf("%s '%s'", $xdgOpen, $data['value']));
+            shell_exec(sprintf("%s '%s'", $xdgOpen, $data['value']));
         }
         break;
     }
-  }
-
+    }
 }

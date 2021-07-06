@@ -41,53 +41,53 @@ $getOpt->addOptions([
 $commands = [];
 // glob() doesn't work with PHAR, so use iterators
 $directory = new \RecursiveIteratorIterator(
-  new \RecursiveDirectoryIterator(COMMAND_PATH)
+    new \RecursiveDirectoryIterator(COMMAND_PATH)
 );
 // commands autoloading
-foreach($directory as $file) {
-  if (!preg_match('/\.php$/', $file)) {
-    continue;
-  }
-  $relativePath = substr($file, strlen(COMMAND_PATH) + 1);
-  $classSuffix = str_replace(['.php',DIRECTORY_SEPARATOR], ['','\\'], $relativePath);
-  $class = '\\OvhCli\\Command\\' . $classSuffix;
-  $command = new $class;
-  $name = $command->getName();
-  $commands[$name] = $command;
+foreach ($directory as $file) {
+    if (!preg_match('/\.php$/', $file)) {
+        continue;
+    }
+    $relativePath = substr($file, strlen(COMMAND_PATH) + 1);
+    $classSuffix = str_replace(['.php',DIRECTORY_SEPARATOR], ['','\\'], $relativePath);
+    $class = '\\OvhCli\\Command\\' . $classSuffix;
+    $command = new $class();
+    $name = $command->getName();
+    $commands[$name] = $command;
 }
 // I like commands to be in alphabetical order :)
 ksort($commands);
 $getOpt->addCommands($commands);
 
 try {
-  try {
-    $getOpt->process();
-  } catch (Missing $exception) {
-    if (!$getOpt->getOption('help')) {
-      throw $exception;
+    try {
+        $getOpt->process();
+    } catch (Missing $exception) {
+        if (!$getOpt->getOption('help')) {
+            throw $exception;
+        }
     }
-  }
 } catch (ArgumentException $exception) {
-  file_put_contents('php://stderr', $exception->getMessage() . PHP_EOL);
-  echo PHP_EOL . $getOpt->getHelpText();
-  exit;
+    file_put_contents('php://stderr', $exception->getMessage() . PHP_EOL);
+    echo PHP_EOL . $getOpt->getHelpText();
+    exit;
 }
 
 // show help and quit
 $command = $getOpt->getCommand();
 if (!$command || $getOpt->getOption('help')) {
-  echo $getOpt->getHelpText();
-  exit;
+    echo $getOpt->getHelpText();
+    exit;
 }
 
 if ($getOpt->getOption('dry-run')) {
-  Ovh::setDryRun(true);
-  Cli::warning("running in DRY-RUN mode");
+    Ovh::setDryRun(true);
+    Cli::warning("running in DRY-RUN mode");
 }
 
 if ($getOpt->getOption('no-cache')) {
-  Ovh::disableCache();
-  Cli::warning("cache is disabled");
+    Ovh::disableCache();
+    Cli::warning("cache is disabled");
 }
 
 // call the requested command

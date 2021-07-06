@@ -3,23 +3,23 @@
 $pharFile = '/tmp/ovh-cli.phar';
 
 if (posix_getuid() == 0) {
-  $finalDir = '/usr/local/bin';
+    $finalDir = '/usr/local/bin';
 } else {
-  $finalDir = getenv('HOME') . '/bin';
-  if (!file_exists($finalDir)) {
-  @mkdir($finalDir);
-  }
-  if (!is_dir($finalDir)) {
-  die("Unable to create directory $finalDir!\n");
-  }
-  $finalFile = $finalDir;
+    $finalDir = getenv('HOME') . '/bin';
+    if (!file_exists($finalDir)) {
+        @mkdir($finalDir);
+    }
+    if (!is_dir($finalDir)) {
+        die("Unable to create directory $finalDir!\n");
+    }
+    $finalFile = $finalDir;
 }
 $finalFile = $finalDir . '/ovh-cli';
 
-foreach([ $pharFile, $pharFile .'.gz' ] as $file) {
-  if (file_exists($file)) {
-  unlink($file);
-  }  
+foreach ([ $pharFile, $pharFile .'.gz' ] as $file) {
+    if (file_exists($file)) {
+        unlink($file);
+    }
 }
 
 $phar = new Phar($pharFile);
