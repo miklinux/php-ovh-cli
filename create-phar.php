@@ -1,58 +1,35 @@
 #!/usr/bin/php
 <?php
+$pharFile = '/tmp/ovh-cli.phar';
 
-$pharFile = '/tmp/ovh.phar';
-
-if (posix_getuid() == 0) {
+if (0 == posix_getuid()) {
   $finalDir = '/usr/local/bin';
 } else {
-  $finalDir = getenv('HOME') . '/bin';
+  $finalDir = getenv('HOME').'/bin';
   if (!file_exists($finalDir)) {
     @mkdir($finalDir);
   }
   if (!is_dir($finalDir)) {
-    die("Unable to create directory $finalDir!\n");
+    exit("Unable to create directory {$finalDir}!\n");
   }
   $finalFile = $finalDir;
 }
-$finalFile = $finalDir . '/ovh-cli';
+$finalFile = $finalDir.'/ovh-cli';
 
-// clean up
-if (file_exists($pharFile)) 
-{
-    unlink($pharFile);
+foreach ([$pharFile, $pharFile.'.gz'] as $file) {
+  if (file_exists($file)) {
+    unlink($file);
+  }
 }
 
-if (file_exists($pharFile . '.gz')) 
-{
-    unlink($pharFile . '.gz');
-}
-
-// create phar
 $phar = new Phar($pharFile);
-
-// start buffering. Mandatory to modify stub to add shebang
 $phar->startBuffering();
-
-// Create the default stub from main.php entrypoint
 $defaultStub = $phar->createDefaultStub('cli.php');
-
-// Add the rest of the apps files
 $phar->buildFromDirectory(__DIR__, '/^((?!\.git).)*$/');
-
-// Customize the stub to add the shebang
-$stub = "#!/usr/bin/php \n" . $defaultStub;
-
-// Add the stub
+$stub = "#!/usr/bin/php \n".$defaultStub;
 $phar->setStub($stub);
-
 $phar->stopBuffering();
-
-// plus - compressing it into gzip  
 $phar->compressFiles(Phar::GZ);
-
-# Make the file executable
 chmod($pharFile, 0755);
 rename($pharFile, $finalFile);
-
-echo "$finalFile has been successfully created!" . PHP_EOL;
+echo "{$finalFile} has been successfully created!".PHP_EOL;

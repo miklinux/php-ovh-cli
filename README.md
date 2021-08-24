@@ -14,22 +14,33 @@ A simple [OVH API](https://api.ovh.com/console/) client for managing OVH infrast
 - Application management
 
 **Dedicated Servers**
-- Search by name/reverse (using RegExps)
-- Retrieve information
-- Configure boot mode
-- Enable/disable OVH monitoring
-- Access KVM console (requires Java-WS)
+- Search (using regular expressions)
+- Retrieve server details
+- Manage boot mode (rescue, harddisk)
+- Manage OVH monitoring
+- Access KVM console (HTML5, JNLP supported)
 - Perform IPMI reset
 - Request hardware reboot
+- Manage service renewal
 
 **vRack**
 - List associated servers
-- Assign servers to vRack
+- Manage vRack servers assignment
 
 **DNS**
 - Reverse DNS management
-- Automatically resolve reverse hostname to OVH `nsXXX` hostname
+- Resolve reverse DNS to OVH `ns*` hostnames
 
+**Tickets**
+- List open tickets
+- Open ticket
+- Reply to ticket
+- Close ticket
+
+**IPs**
+- List failover IPs
+- Resolve from service name to reverse
+- Resolve from reverse to service name
 
 ## Requirements
 
@@ -43,6 +54,11 @@ A simple [OVH API](https://api.ovh.com/console/) client for managing OVH infrast
 $ git clone https://github.com/miklinux/php-ovh-cli.git
 $ cd php-ovh-cli
 $ composer update
+```
+
+Also works on PHP8, but with some workaround:
+```
+$ composer update --ignore-platform-reqs
 ```
 
 If you prefer to have a standalone executable, then create a PHAR package:

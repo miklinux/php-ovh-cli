@@ -1,1 +1,4 @@
+.php-cs-fixer.cache
+composer.lock
 vendor/
+src/Command/Custom/
