@@ -60,7 +60,7 @@ class Info extends \OvhCli\Command
       foreach ($uuids as $uuid) {
         $net = $this->ovh()->getServerNetworkInterfaceDetails($server, $uuid);
         $nics[$net['mode']] = [
-          'macAddress' => $net['networkInterfaceController'][0],
+          'macAddress' => $net['networkInterfaceController'],
           'uuid'       => $uuid,
         ];
       }

@@ -247,7 +247,14 @@ class Ovh
 
   public function getServerNetworkInterfaceDetails($server, $nic_uuid)
   {
-    return $this->get("/dedicated/server/{$server}/virtualNetworkInterface/{$nic_uuid}");
+    $res = $this->get("/dedicated/server/{$server}/virtualNetworkInterface/{$nic_uuid}");
+    # Sort the interfaces list by MAC address to get the lower one on top.
+    # On bigger servers (eg. HGR-HCI-5) with network aggregations, the first interface
+    # is the one capable of receiving traffic without setting up LACP.
+    if (is_array($res['networkInterfaceController'])) {
+      sort($res['networkInterfaceController']);
+    }
+    return $res;
   }
 
   public function getServerServiceInfo($server)
@@ -373,12 +380,10 @@ class Ovh
     $uuids = $this->getServerNetworkInterfaces($server);
     foreach ($uuids as $uuid) {
       $net = $this->getServerNetworkInterfaceDetails($server, $uuid);
-      if ('vrack' != $net['mode']) {
-        continue;
+      if (preg_match('/vrack/', $net['mode'])) {
+        $vrack_nic_uuid = $uuid;
+        break;
       }
-      $vrack_nic_uuid = $uuid;
-
-      break;
     }
     if (empty($vrack_nic_uuid)) {
       throw new \Exception("Unable to determine vRack dedicated interface for '{$server}'");
@@ -390,7 +395,6 @@ class Ovh
   public function isInVrack($vrack_id, $vrack_nic_uuid)
   {
     $vrack_nic_uuids = $this->getVrackNetworkInterfaces($vrack_id);
-
     return in_array($vrack_nic_uuid, $vrack_nic_uuids);
   }
 
