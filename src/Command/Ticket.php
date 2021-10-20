@@ -254,34 +254,27 @@ class Ticket extends \OvhCli\Command
 
   protected function openTicket()
   {
-    $category = Cli::multiChoicePrompt(
+    $request = [];
+    $request['category'] = Cli::multiChoicePrompt(
       'Ticket category',
       $this->categories,
       '3'
     );
-    $subcategory = Cli::multiChoicePrompt(
+    $request['subcategory'] = Cli::multiChoicePrompt(
       'Ticket subcategory',
       $this->subcategories,
       '6',
     );
-    $product = Cli::multiChoicePrompt(
+    $request['product'] = Cli::multiChoicePrompt(
       'Related to product',
       $this->products,
       '3',
     );
-    $subject = Cli::prompt('Ticket subject', 'Generic request');
-    $serviceName = Cli::prompt('Service name');
-    $body = $this->editMessage(['body' => null]);
-    $request = [
-      'subject'     => $subject,
-      'category'    => $category,
-      'subcategory' => $subcategory,
-      'product'     => $product,
-      'serviceName' => $serviceName,
-      'body'        => $body,
-    ];
-    Cli::format($request);
-
-    return $this->ovh()->createSupportTicket($request);
+    $request['subject'] = Cli::prompt('Ticket subject', 'Generic request');
+    $request['serviceName'] = Cli::prompt('Service name');
+    $request['body'] = $this->editMessage([ 'body' => null ]);
+    $res = $this->ovh()->createSupportTicket($request);
+    Cli::sucess('The ticket has been created!');
+    return $res;
   }
 }
