@@ -274,7 +274,7 @@ class Ticket extends \OvhCli\Command
     $request['serviceName'] = Cli::prompt('Service name');
     $request['body'] = $this->editMessage([ 'body' => null ]);
     $res = $this->ovh()->createSupportTicket($request);
-    Cli::sucess('The ticket has been created!');
+    Cli::success('The ticket has been created!');
     return $res;
   }
 }
