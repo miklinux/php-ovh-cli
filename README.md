@@ -44,7 +44,7 @@ A simple [OVH API](https://api.ovh.com/console/) client for managing OVH infrast
 
 ## Requirements
 
-* PHP >= 7.0
+* PHP >= 7.3
 * PHP gmp extension (used by [rlanvin/php-ip](https://github.com/rlanvin/php-ip))
 * [Composer](https://getcomposer.org)
 
