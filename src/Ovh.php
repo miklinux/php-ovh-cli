@@ -566,6 +566,21 @@ class Ovh
     ]);
   }
 
+  public function getServiceBillingEngagement($id)
+  {
+    return $this->get("/services/{$id}/billing/engagement");
+  }
+
+  public function setServiceBillingEngagement($id, bool $value)
+  {
+    $res = $this->put("/services/{$id}/billing/engagement/endRule", [
+      'strategy' => ($value === true) ?
+        'REACTIVATE_ENGAGEMENT' : 
+        'STOP_ENGAGEMENT_FALLBACK_DEFAULT_PRICE',
+    ]);
+    return $res;
+  }
+
   protected function shouldCache($url)
   {
     if (self::$disableCache) {

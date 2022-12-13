@@ -38,6 +38,7 @@ class Info extends \OvhCli\Command
     } catch (\Exception $e) {
       Cli::error($e);
     }
+    ksort($service);
     Cli::format($service, [
       'maxSize' => 40,
       'grep'    => (bool) $getopt->getOption('grep'),

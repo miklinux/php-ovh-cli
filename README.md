@@ -22,6 +22,7 @@ A simple [OVH API](https://api.ovh.com/console/) client for managing OVH infrast
 - Perform IPMI reset
 - Request hardware reboot
 - Manage service renewal
+- Manage service engagement
 
 **vRack**
 - List associated servers
@@ -44,7 +45,7 @@ A simple [OVH API](https://api.ovh.com/console/) client for managing OVH infrast
 
 ## Requirements
 
-* PHP >= 7.3
+* PHP >= 8
 * PHP gmp extension (used by [rlanvin/php-ip](https://github.com/rlanvin/php-ip))
 * [Composer](https://getcomposer.org)
 
@@ -54,11 +55,6 @@ A simple [OVH API](https://api.ovh.com/console/) client for managing OVH infrast
 $ git clone https://github.com/miklinux/php-ovh-cli.git
 $ cd php-ovh-cli
 $ composer update
-```
-
-Also works on PHP8, but with some workaround:
-```
-$ composer update --ignore-platform-reqs
 ```
 
 If you prefer to have a standalone executable, then create a PHAR package:
