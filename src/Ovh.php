@@ -150,7 +150,7 @@ class Ovh
       if (self::$dryRun) {
         echo
           Cli::boldBlue('[DRY-RUN] ').
-          Cli::lightBlue(strtoupper($method)." ${args[0]}\n");
+          Cli::lightBlue(strtoupper($method)." {$args[0]}\n");
         if (!empty($args[1])) {
           echo Cli::lightBlue(json_encode($args[1], JSON_PRETTY_PRINT)).PHP_EOL;
         }

@@ -12,6 +12,10 @@ use Phpfastcache\Config\Config as CacheConfig;
 
 require_once __DIR__.'/vendor/autoload.php';
 
+if (!extension_loaded('mbstring')) {
+  die('PHP extension "mbstring" is missing.'. PHP_EOL);
+}
+
 error_reporting(E_ALL ^ E_NOTICE);
 define('CONFIG_FILE', getenv('HOME').'/.ovh-cli.config.json');
 define('COMMAND_PATH', __DIR__.'/src/Command');

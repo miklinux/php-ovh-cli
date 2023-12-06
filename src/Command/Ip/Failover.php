@@ -79,7 +79,7 @@ class Failover extends \OvhCli\Command
       if ($info['routedTo']['serviceName'] == $server) {
         Cli::error('IP %s already belongs to %s (%s)', $foip, $server, $details['reverse']);
       }
-      $confirm = Cli::confirm("Do you really want to move Failover IP {$foip} from ${srcdetails['reverse']} to ${details['reverse']} ?", false);
+      $confirm = Cli::confirm("Do you really want to move Failover IP {$foip} from {$srcdetails['reverse']} to {$details['reverse']} ?", false);
       if ($confirm) {
         $res = $this->ovh()->moveIp($foip, $server);
         Cli::success('Failover IP has been moved successfully');

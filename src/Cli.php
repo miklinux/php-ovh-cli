@@ -104,6 +104,7 @@ class Cli
 
   public static function prompt($message, $default = null, $default_empty = null)
   {
+    $default = (string) $default;
     if (0 == strlen($default)) {
       $default = $default_empty;
     }

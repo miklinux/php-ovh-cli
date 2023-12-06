@@ -33,7 +33,7 @@ class Search extends \OvhCli\Command
 
   public function handle(GetOpt $getopt)
   {
-    $filter = addcslashes($getopt->getOperand('filter'), '/');
+    $filter = addcslashes((string) $getopt->getOperand('filter'), '/');
     $datacenter = $getopt->getOption('datacenter');
     $limit = (int) $getopt->getOption('limit');
     $servers = $this->ovh()->getServers();
