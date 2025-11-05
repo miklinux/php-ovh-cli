@@ -8,7 +8,7 @@ use GetOpt\Option;
 use OvhCli\Cli;
 use OvhCli\Ovh;
 use Phpfastcache\CacheManager;
-use Phpfastcache\Config\Config as CacheConfig;
+use Phpfastcache\Config\ConfigurationOption;
 
 require_once __DIR__.'/vendor/autoload.php';
 
@@ -21,7 +21,7 @@ define('CONFIG_FILE', getenv('HOME').'/.ovh-cli.config.json');
 define('COMMAND_PATH', __DIR__.'/src/Command');
 
 // set cache
-CacheManager::setDefaultConfig(new CacheConfig([
+CacheManager::setDefaultConfig(new ConfigurationOption([
   'path'             => sys_get_temp_dir(),
   'itemDetailedDate' => false,
 ]));

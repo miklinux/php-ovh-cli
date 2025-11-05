@@ -1,9 +1,9 @@
 {
     "require": {
-        "ovh/ovh": "^2.0",
+        "ovh/ovh": "^3.0",
         "rlanvin/php-ip": "^3.0",
         "ulrichsg/getopt-php": "^4.0",
-        "phpfastcache/phpfastcache": "^8.0"
+        "phpfastcache/phpfastcache": "^9.0"
     },
     "autoload": {
         "psr-4": {
